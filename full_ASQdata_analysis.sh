@@ -1,11 +1,11 @@
 #!/bin/bash
 #PBS -A UQ-SCI-SCMB
-#PBS -l nodes=1:ppn=6,mem=60GB,walltime=70:00:00
+#PBS -l nodes=1:ppn=6,mem=60GB,walltime=55:00:00
 #PBS -m n
 
 ##### Set Job info
 JOB_TITLE=fullanalysis_ASMdata_uptoBetaDiv
-QSUB_REQUEST="nodes=1:ppn=6,mem=60GB,walltime=70:00:00"
+QSUB_REQUEST="nodes=1:ppn=6,mem=60GB,walltime=55:00:00"
 
 #Load Modules
 module load trimmomatic
@@ -68,7 +68,7 @@ START_TIME=$(date +%s)
 i=1  #index that will be added at the end of each filename for join_paired_ends identifiers.
 for f1 in *_R1.fastq.gz
 do
-        basename=${f1/%-*/}
+        basename=${f1/%-16S*/}
         f2=${f1%%'_R1.fastq.gz'}"_R2.fastq.gz"
         java -jar /opt/biotools/trimmomatic/trimmomatic-0.35.jar PE $f1 $f2 $basename"_R1_$(printf "%03d" $i)"".fq.gz" $basename"_1U.fq.gz" $basename"_R2_$(printf "%03d" $i)"".fq.gz" $basename"_2U.fq.gz" ILLUMINACLIP:illumina_primers_341F_806R_revisedRG13112017.txt:2:40:15 SLIDINGWINDOW:4:15 MINLEN:200
         i=$((i+1))
@@ -77,7 +77,7 @@ done
 
 END_TIME=$(date +%s)
 DIFF=$(( $END_TIME - $START_TIME ))
-echo -e "\n Trimmomatic took $(($DIFF / 3600)) hours, $((($DIFF / 60) % 60)) minutes and $(($DIFF % 60)) seconds" >> $LOG_FILE
+echo -e "\nTrimmomatic took $(($DIFF / 3600)) hours, $((($DIFF / 60) % 60)) minutes and $(($DIFF % 60)) seconds" >> $LOG_FILE
 
 #the trimmomatic results end up in $INPUT_DIR
 #transfer trimmomatic output to a directory called 'trimmomatic_results'
@@ -102,18 +102,18 @@ START_TIME=$(date +%s)
 i=1  #index that will be added at the end of each filename for join_paired_ends identifiers.
 for f1 in $JOB_DIR/trimmomatic_results/paired/*_R1_*
 do
-        basename=${f1%%_R1_*}
+        basename=${{f1##*/}%%_R1_*}
         f2=$(echo $f1 | sed 's/R1/R2/')
         join_paired_ends.py \
         -f $f1 \
         -r $f2 \
-        -o $JOB_DIR/join_output/$basename
+        -o $JOB_DIR/join_output/$basename/
         i=$((i+1))
 done
 
 END_TIME=$(date +%s)
 DIFF=$(( $END_TIME - $START_TIME ))
-echo -e "\njoin_paired_ends.py took $(($DIFF / 3600)) hours, $((($DIFF / 60) % 60)) minutes and $(($DIFF % 60)) seconds" >> $LOG_FILE
+echo -e "join_paired_ends.py took $(($DIFF / 3600)) hours, $((($DIFF / 60) % 60)) minutes and $(($DIFF % 60)) seconds" >> $LOG_FILE
 
 
 ##################################################################
@@ -146,6 +146,7 @@ pick_open_reference_otus.py \
 -r $INPUT_DIR/silva_132_97_16S.fna
 
 END_TIME=$(date +%s)
+echo "pick_open_reference_otus.py took $(($DIFF / 3600)) hours, $((($DIFF / 60) % 60)) minutes and $(($DIFF % 60)) seconds" >> $LOG_FILE
 
 ##################################################################
 ## parallel_identify_chimeric_seqs.py
@@ -186,8 +187,8 @@ echo "filter_fasta.py (removing chimera) took $(($DIFF / 3600)) hours, $((($DIFF
 START_TIME=$(date +%s)
 
 filter_alignment.py \
--i $JOB_DIR/pickotus/pynast_aligned_seqs/rep_set_aligned_chimerafree.fasta \
--o $JOB_DIR/pickotus/
+-i $JOB_DIR/pick_otus/pynast_aligned_seqs/rep_set_aligned_chimerafree.fasta \
+-o $JOB_DIR/pick_otus/
 
 END_TIME=$(date +%s)
 DIFF=$(( $END_TIME - $START_TIME ))
@@ -244,6 +245,7 @@ alpha_rarefaction.py \
 -o $JOB_DIR/pick_otus/alpha_output_folder \
 -m $INPUT_DIR/mapping_pimelea_testset.txt \
 -t $JOB_DIR/pick_otus/rep_set.tre
+
 
 
 beta_diversity_through_plots.py \
