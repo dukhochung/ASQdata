@@ -4,7 +4,7 @@
 #PBS -m n
 
 ##### Set Job info
-JOB_TITLE=qiime2_BYLN3
+JOB_TITLE=qiime2_BYLN3_truncated
 QSUB_REQUEST="nodes=1:ppn=20,mem=60GB,walltime=80:00:00"
 
 #Load Modules
@@ -76,7 +76,7 @@ qiime dada2 denoise-paired \
   --p-trim-left-f 0 \
   --p-trim-left-r 0 \
   --p-trunc-len-f 0 \
-  --p-trunc-len-r 0 \
+  --p-trunc-len-r 229 \
   --p-n-threads 10
 
 # The feature-table summarize command will give you information on how many sequences are associated with each sample and with each feature, histograms of those distributions, and some related summary statistics.
