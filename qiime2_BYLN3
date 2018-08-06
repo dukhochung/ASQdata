@@ -1,0 +1,146 @@
+#!/bin/bash
+#PBS -A UQ-SCI-SCMB
+#PBS -l nodes=1:ppn=20,mem=60GB,walltime=80:00:00
+#PBS -m n
+
+##### Set Job info
+JOB_TITLE=qiime2_BYLN3
+QSUB_REQUEST="nodes=1:ppn=20,mem=60GB,walltime=80:00:00"
+
+#Load Modules
+#module load qiime-modules/1.9.1
+module load qiime2/2018.6.0
+
+#Metrics for the run
+TOTAL_START_TIME=$(date +%s)
+
+#Directories and files
+#qsub this job from within the /30days/your_uq_username/ so the /30days/your_uq_username/ directory will be set as the job directory
+#The illumina primers file will need to be available in the /30days/your_uq_username/
+JOB_DIR=$TMPDIR/$JOB_TITLE.${PBS_JOBID%%.awongmgmr1}
+INPUT_DIR=$JOB_DIR/input
+LOG_FILE=$JOB_DIR/log.txt
+
+#Set up the run
+mkdir -p $INPUT_DIR
+
+#Write job_id and start time in log file
+printf '=%.0s' {1..40} > $LOG_FILE
+nowdate='date +%d-%m-%Y'
+nowtime='date +%H:%M'
+echo -e ""
+echo -e "\nJob start date & time: $nowdate \t $nowtime \n" >> $LOG_FILE
+echo -e "JOB_ID: $PBS_JOBID \n" >> $LOG_FILE
+echo -e "JOB_TITLE: $JOB_TITLE \n" >> $LOG_FILE
+
+# put matching request info as above #PBS script
+echo -e "$QSUB_REQUEST \n" >> $LOG_FILE
+printf '=%.0s' {1..40} >> $LOG_FILE
+
+#Specify absolute paths of raw fastq, primer/ref, and all necessary files to copy them to the input directory.
+Raw_files_ASQ=/30days/s4468358/projects/pimelea/data/fastq/ASQ_Pimelea_all_raw_reads/
+Raw_files_BYLLT=/30days/s4468358/projects/pimelea/data/fastq/BGBP0023_Plant_toxins/AGRF_CAGRF14408_BYLLT/
+Raw_files_BYLN3=/30days/s4468358/projects/pimelea/data/fastq/BGBP0023_Plant_toxins/AGRF_CAGRF14408_BYLN3/
+Qiime2_mapping_file=/30days/s4468358/projects/pimelea/data/exp/mappingfiles/Qiime2_Mapping_file_Pimelea_all_samples.txt
+Qiime2_files_BYLN3=/30days/s4468358/projects/pimelea/data/qiime2/BYLN3/
+BYLLT_metadata=/30days/s4468358/projects/pimelea/data/qiime2/metadata/BYLLT-metadata.tsv
+
+
+cp -pr $Raw_files_BYLN3 $INPUT_DIR
+cp -pr $Qiime2_mapping_file $INPUT_DIR
+cp -pr $Qiime2_files_BYLN3 $INPUT_DIR
+cp -pr $BYLLT_metadata $INPUT_DIR 
+
+
+START_TIME=$(date +%s)
+
+cd $INPUT_DIR/
+
+
+#qiime tools import \
+#  --type 'SampleData[PairedEndSequencesWithQuality]' \
+#  --input-path /30days/s4468358/projects/pimelea/data/fastq/BGBP0023_Plant_toxins/AGRF_CAGRF14408_BYLN3/BGBP-BYLN3-manifest \
+#  --output-path $JOB_DIR/BYLN3-pe-demux.qza
+#  --source-format PairedEndFastqManifestPhred33
+#
+#qiime demux summarize \
+#  --i-data demux.qza \
+#  --o-visualization demux.qzv
+
+
+qiime dada2 denoise-paired \
+  --i-demultiplexed-seqs $INPUT_DIR/BYLN3/BYLN3-demux.qza \
+  --o-table $JOB_DIR/table_BYLN3.qza \
+  --o-representative-sequences $JOB_DIR/rep-seqs_BYLN3.qza \
+  --o-denoising-stats $JOB_DIR/denoising-stats_BYLN3.qza \
+  --p-trim-left-f 0 \
+  --p-trim-left-r 0 \
+  --p-trunc-len-f 0 \
+  --p-trunc-len-r 0 \
+  --p-n-threads 10
+
+# The feature-table summarize command will give you information on how many sequences are associated with each sample and with each feature, histograms of those distributions, and some related summary statistics.
+qiime feature-table summarize \
+  --i-table $JOB_DIR/table_BYLN3.qza \
+  --o-visualization $JOB_DIR/table_BYLN3.qzv \
+  --m-sample-metadata-file $INPUT_DIR/BYLLT-metadata.tsv
+
+
+# The feature-table tabulate-seqs command will provide a mapping of feature IDs to sequences, and provide links to easily BLAST each sequence against the NCBI nt database. The latter visualization will be very useful later in the tutorial, when you want to learn more about specific features that are important in the data set.
+qiime feature-table tabulate-seqs \
+  --i-data $JOB_DIR/rep-seqs_BYLN3.qza \
+  --o-visualization $JOB_DIR/rep-seqs_BYLN3.qzv
+
+qiime metadata tabulate \
+  --m-input-file $JOB_DIR/denoising-stats_BYLN3.qza \
+  --o-visualization $JOB_DIR/denoising-stats_BYLN3.qzv
+
+
+qiime alignment mafft \
+  --i-sequences $JOB_DIR/rep-seqs_BYLN3.qza \
+  --o-alignment $JOB_DIR/aligned-rep-seqs_BYLN3.qza
+
+qiime alignment mask \
+  --i-alignment $JOB_DIR/aligned-rep-seqs.qza \
+  --o-masked-alignment $JOB_DIR/masked-aligned-rep-seqs_BYLN3.qza
+
+qiime phylogeny fasttree \
+  --i-alignment $JOB_DIR/masked-aligned-rep-seqs_BYLN3.qza \
+  --o-tree $JOB_DIR/unrooted-tree_BYLN3.qza
+
+qiime phylogeny midpoint-root \
+  --i-tree $JOB_DIR/unrooted-tree_BYLN3.qza \
+  --o-rooted-tree $JOB_DIR/rooted-tree_BYLN3.qza
+
+
+
+END_TIME=$(date +%s)
+DIFF=$(( $END_TIME - $START_TIME ))
+echo -e "\nextract_barcodes.py took $(($DIFF / 3600)) hours, $((($DIFF / 60) % 60)) minutes and $(($DIFF % 60)) seconds" >> $LOG_FILE
+
+
+
+##################################################################
+## Wrap up results ---------------
+##################################################################
+
+#delete the original input fastq files and the illumina primers text file to reduce the size and tidy up the output directory
+rm -rf $INPUT_DIR/
+
+#put total time taken into the log file
+
+TOTAL_END_TIME=$(date +%s)
+TOTAL_DIFF=$(($TOTAL_END_TIME - $TOTAL_START_TIME))
+echo "Everything took $(($TOTAL_DIFF / 3600)) hours, $((($TOTAL_DIFF / 60) % 60)) minutes and $(($TOTAL_DIFF % 60)) seconds" >> $LOG_FILE
+
+
+#Package up the results
+
+# set tar file suffix
+TAR_FILE_SUFFIX=$JOB_TITLE.${PBS_JOBID%%.awongmgmr1}.tar
+
+cd $JOB_DIR/../
+tar -cf $TAR_FILE_SUFFIX -C $JOB_DIR/../ .
+gzip $TAR_FILE_SUFFIX
+cp -p $TAR_FILE_SUFFIX.gz $PBS_O_WORKDIR
+rm -rf $JOB_DIR*
