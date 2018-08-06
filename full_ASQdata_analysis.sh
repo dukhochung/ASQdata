@@ -4,7 +4,7 @@
 #PBS -m n
 
 ##### Set Job info
-JOB_TITLE=fullanalysis_ASMdata_uptoBetaDiv
+JOB_TITLE=q1_ASQ_SplitThreshold29_withCoreDivAnalysis
 QSUB_REQUEST="nodes=1:ppn=6,mem=60GB,walltime=55:00:00"
 
 #Load Modules
@@ -17,7 +17,7 @@ TOTAL_START_TIME=$(date +%s)
 #Directories and files
 #qsub this job from within the /30days/your_uq_username/ so the /30days/your_uq_username/ directory will be set as the job directory
 #The illumina primers file will need to be available in the /30days/your_uq_username/
-JOB_DIR=$TMPDIR/$PBS_JOBID.$JOB_TITLE
+JOB_DIR=$TMPDIR/$JOB_TITLE.${PBS_JOBID%%.awongmgmr1}
 INPUT_DIR=$JOB_DIR/input
 LOG_FILE=$JOB_DIR/log.txt
 
@@ -26,9 +26,9 @@ mkdir -p $INPUT_DIR
 
 #Write job_id and start time in log file
 printf '=%.0s' {1..40} > $LOG_FILE
-nowdate=$(date +"%d-%m-%Y")
-nowtime=$(date +"%H:%M")
-echo -e "\nJob start date & time: $nowdate \t $nowtime \n" >> $LOG_FILE
+nowdate=date
+
+echo -e "\nJob start date & time: $nowdate \n" >> $LOG_FILE
 echo -e "JOB_ID: $PBS_JOBID \n" >> $LOG_FILE
 echo -e "JOB_TITLE: $JOB_TITLE \n" >> $LOG_FILE
 
@@ -42,13 +42,15 @@ echo -e "\n"
 Raw_files=/30days/s4468358/projects/pimelea/data/fastq/ASQ_Pimelea_all_raw_reads/*
 Trim_primers=/30days/s4468358/projects/pimelea/data/exp/2_Trimmomatic/primers/illumina_primers_341F_806R_revisedRG13112017.txt
 OTU_ref_file=/30days/s4468358/projects/pimelea/data/exp/5_pick_openref_otus/reference_files/silva_132_97_16S.fna
-Mapping_file=/30days/s4468358/projects/pimelea/data/exp/mappingfiles/mapping_pimelea_testset.txt
+Mapping_file=/30days/s4468358/projects/pimelea/data/exp/mappingfiles/Mapping_file_Pimelea_all_samples_corrected.txt
+Parameter_file=/30days/s4468358/projects/pimelea/data/exp/mappingfiles/q1_parameters.txt
 
 #copy them into input dir
 cp -pr $Raw_files $INPUT_DIR
 cp -pr $Trim_primers $INPUT_DIR
 cp -pr $OTU_ref_file $INPUT_DIR
 cp -pr $Mapping_file $INPUT_DIR
+cp -pr $Parameter_file $INPUT_DIR
 
 #Move to the compute node
 cd $INPUT_DIR
@@ -102,37 +104,78 @@ START_TIME=$(date +%s)
 i=1  #index that will be added at the end of each filename for join_paired_ends identifiers.
 for f1 in $JOB_DIR/trimmomatic_results/paired/*_R1_*
 do
-        basename=${{f1##*/}%%_R1_*}
+        #basename=${{f1##*/}%%_R1_*}
+	basename=${f1%%_R1_*}
         f2=$(echo $f1 | sed 's/R1/R2/')
         join_paired_ends.py \
         -f $f1 \
         -r $f2 \
-        -o $JOB_DIR/join_output/$basename/
+        -o $JOB_DIR/join_output/$basename/ 
         i=$((i+1))
 done
+
 
 END_TIME=$(date +%s)
 DIFF=$(( $END_TIME - $START_TIME ))
 echo -e "join_paired_ends.py took $(($DIFF / 3600)) hours, $((($DIFF / 60) % 60)) minutes and $(($DIFF % 60)) seconds" >> $LOG_FILE
 
 
-##################################################################
-## multiple_split_libraries_fastq.py
-##################################################################
-#sampleid_by_file method uses the file or directory names as sample ids
-#include dir path option uses the dir paths for each input files since all input filenames are same
-#remove filepath avoids the file paths actually shoing in the output filename
+
+
+################################
+### QIIME
+### multiple_split_libraries_fastq.py
+################################
 START_TIME=$(date +%s)
+#i=1  #index that will be added at the end of each filename for join_paired_ends identifiers.
+#for f1 in $JOB_DIR/join_output/*_R1_*
+#do
+#        #basename=${{f1##*/}%%_R1_*}
+#        basename=${f1%%_R1_*}
+#        f2=$(echo $f1 | sed 's/R1/R2/')
+#        split_libraries_fastq.py \
+#        -i $f1 \
+#        -r $f2 \
+#        -o $JOB_DIR/join_output/$basename/
+#        i=$((i+1))
+#done
+
 
 multiple_split_libraries_fastq.py \
 -i $JOB_DIR/join_output/ \
 -o $JOB_DIR/multiple_split_output/ \
+-p $INPUT_DIR/q1_parameters.txt \
 --include_input_dir_path \
 --remove_filepath_in_name
 
+
+
+
 END_TIME=$(date +%s)
 DIFF=$(( $END_TIME - $START_TIME ))
-echo "multiple_split_libraries_fastq.py took $(($DIFF / 3600)) hours, $((($DIFF / 60) % 60)) minutes and $(($DIFF % 60)) seconds" >> $LOG_FILE
+echo -e "join_paired_ends.py took $(($DIFF / 3600)) hours, $((($DIFF / 60) % 60)) minutes and $(($DIFF % 60)) seconds" >> $LOG_FILE
+
+
+
+
+###################################################################
+### multiple_split_libraries_fastq.py
+###################################################################
+##sampleid_by_file method uses the file or directory names as sample ids
+##include dir path option uses the dir paths for each input files since all input filenames are same
+##remove filepath avoids the file paths actually shoing in the output filename
+#START_TIME=$(date +%s)
+#
+#multiple_split_libraries_fastq.py \
+#-i $JOB_DIR/join_output/ \
+#-o $JOB_DIR/multiple_split_output/ \
+#-q 29 \
+#--include_input_dir_path \
+#--remove_filepath_in_name
+#
+#END_TIME=$(date +%s)
+#DIFF=$(( $END_TIME - $START_TIME ))
+#echo "multiple_split_libraries_fastq.py took $(($DIFF / 3600)) hours, $((($DIFF / 60) % 60)) minutes and $(($DIFF % 60)) seconds" >> $LOG_FILE
 
 ##################################################################
 ## pick_open_reference_otus.py (Computer Intensive)
@@ -219,7 +262,7 @@ make_otu_table.py \
 -i $JOB_DIR/pick_otus/final_otu_map_mc2.txt \
 -o $JOB_DIR/pick_otus/otu_table_nochimera.biom \
 -t $JOB_DIR/pick_otus/uclust_assigned_taxonomy/rep_set_tax_assignments.txt \
--e $JOB_DIR/chimeric_seqs.txt
+-e $JOB_DIR/pick_otus/chimeric_seqs.txt
 
 END_TIME=$(date +%s)
 DIFF=$(( $END_TIME - $START_TIME ))
@@ -243,7 +286,7 @@ echo "biom summarize-table (without chimera) took $(($DIFF / 3600)) hours, $((($
 alpha_rarefaction.py \
 -i $JOB_DIR/pick_otus/otu_table_nochimera.biom \
 -o $JOB_DIR/pick_otus/alpha_output_folder \
--m $INPUT_DIR/mapping_pimelea_testset.txt \
+-m $INPUT_DIR/Mapping_file_Pimelea_all_samples_corrected.txt \
 -t $JOB_DIR/pick_otus/rep_set.tre
 
 
@@ -251,32 +294,44 @@ alpha_rarefaction.py \
 beta_diversity_through_plots.py \
 -i $JOB_DIR/pick_otus/otu_table_nochimera.biom \
 -o $JOB_DIR/pick_otus/bdiv_plots/ \
--m $INPUT_DIR/mapping_pimelea_testset.txt \
--t $JOB_DIR/pick_otus/rep_set.tre \
+-m $INPUT_DIR/Mapping_file_Pimelea_all_samples_corrected.txt \
+-t $JOB_DIR/pick_otus/rep_set.tre 
 
 
-## Unweighted UniFrac stats
-#compare_categories.py \
-#-i bdiv_plots/unweight_unifrac_dm.txt \
-#-o bdiv_stats_adonis_unweighted/ \
-#-m mapping_file.txt \
-#-c SampleType \
-#--method adonis
-#
-## Weighted UniFrac stats
-#compare_categories.py \
-#-i bdiv_plots/weight_unifrac_dm.txt \
-#-o bdiv_stats_adonis_weighted/ \
-#-m mapping_file.txt \
-#-c SampleType \
-#--method adonis
-#
-#make_distance_boxplots.py \
-#-d bdiv_plots/unweighted_unifrac_dm.txt \
-#-o bdiv_plots/unweighted_distance_boxplot
-#-m mapping_file.txt \
-#-f "SampleType" \
-#--save_raw_data
+# Unweighted UniFrac stats
+compare_categories.py \
+-i $JOB_DIR/pick_otus/bdiv_plots/unweight_unifrac_dm.txt \
+-o $JOB_DIR/pick_otus/bdiv_stats_adonis_unweighted/ \
+-m $INPUT_DIR/Mapping_file_Pimelea_all_samples_corrected.txt \
+-c Clinical_signs \
+--method adonis
+
+# Weighted UniFrac stats
+compare_categories.py \
+-i $JOB_DIR/pick_otus/bdiv_plots/weight_unifrac_dm.txt \
+-o $JOB_DIR/pick_otus/bdiv_stats_adonis_weighted/ \
+-m $INPUT_DIR/Mapping_file_Pimelea_all_samples_corrected.txt \
+-c Clinical_signs \
+--method adonis
+
+make_distance_boxplots.py \
+-d $JOB_DIR/pick_otus/bdiv_plots/unweighted_unifrac_dm.txt \
+-o $JOB_DIR/pick_otus/bdiv_plots/unweighted_distance_boxplot
+-m $INPUT_DIR/Mapping_file_Pimelea_all_samples_corrected.txt \
+-f "Clinical_signs" \
+--save_raw_data
+
+
+
+core_diversity_analyses.py \
+-i $JOB_DIR/pick_otus/otu_table_nochimera.biom \
+-o $JOB_DIR/pick_otus/core_output \
+-m $INPUT_DIR/Mapping_file_Pimelea_all_samples_corrected.txt \
+-c Clinical_signs \
+-t $JOB_DIR/pick_otus/rep_set_chimerafree.tre \
+-e 58782  # used the minimum seq depth from biom summarize-table output58782 
+
+
 
 ##################################################################
 ## Wrap up results ---------------
@@ -295,10 +350,11 @@ echo "Everything took $(($TOTAL_DIFF / 3600)) hours, $((($TOTAL_DIFF / 60) % 60)
 #Package up the results
 
 # set tar file suffix
-TAR_FILE_SUFFIX=$JOB_TITLE.tar
+TAR_FILE_SUFFIX=$JOB_TITLE.${PBS_JOBID%%.awongmgmr1}.tar
 
 cd $JOB_DIR/../
-tar -cf $PBS_JOBID.$TAR_FILE_SUFFIX -C $JOB_DIR/../ .
-gzip $PBS_JOBID.$TAR_FILE_SUFFIX
-cp -p $PBS_JOBID.$TAR_FILE_SUFFIX.gz $PBS_O_WORKDIR
+tar -cf $TAR_FILE_SUFFIX -C $JOB_DIR/../ .
+gzip $TAR_FILE_SUFFIX
+cp -p $TAR_FILE_SUFFIX.gz $PBS_O_WORKDIR
 rm -rf $JOB_DIR*
+
