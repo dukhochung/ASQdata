@@ -4,7 +4,7 @@
 #PBS -m n
 
 ##### Set Job info
-JOB_TITLE=qiime2_BYLLT_full
+JOB_TITLE=qiime2_BYLLT_full_truncated
 QSUB_REQUEST="nodes=1:ppn=20,mem=60GB,walltime=80:00:00"
 
 #Load Modules
@@ -88,11 +88,11 @@ qiime dada2 denoise-paired \
   --i-demultiplexed-seqs $INPUT_DIR/BYLLT/BYLLT-demux.qza \
   --o-table $JOB_DIR/BYLLT-table.qza \
   --o-representative-sequences $JOB_DIR/BYLLT-rep-seqs.qza \
-  --o-denoising-stats $JOB_DIR/denoising-stats.qza \
-  --p-trim-left-f 0 \
+  --o-denoising-stats $JOB_DIR/BYLLT-denoising-stats.qza \
+  --p-trim-left-f 20 \
   --p-trim-left-r 0 \
-  --p-trunc-len-f 0 \
-  --p-trunc-len-r 0 \
+  --p-trunc-len-f 285 \
+  --p-trunc-len-r 255 \
   --p-n-threads 10 \
   --p-n-reads-learn 1000000 \
 #  --output-dir $JOB_DIR/dada2_output
