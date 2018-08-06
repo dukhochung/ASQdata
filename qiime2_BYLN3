@@ -101,7 +101,7 @@ qiime alignment mafft \
   --o-alignment $JOB_DIR/aligned-rep-seqs_BYLN3.qza
 
 qiime alignment mask \
-  --i-alignment $JOB_DIR/aligned-rep-seqs.qza \
+  --i-alignment $JOB_DIR/aligned-rep-seqs_BYLN3.qza \
   --o-masked-alignment $JOB_DIR/masked-aligned-rep-seqs_BYLN3.qza
 
 qiime phylogeny fasttree \
