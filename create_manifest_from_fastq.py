@@ -19,11 +19,15 @@ def main(argv):
    try:
       opts, args = getopt.getopt(argv,"hi:o:",["ifile=","ofile="])
    except getopt.GetoptError:
-      print('test.py -i <inputfile> -o <outputfile>')
+      print('./create_manifest_from_fastq.py -i <input directory> -o <output file>')
       sys.exit(2)
    for opt, arg in opts:
       if opt == '-h':
-         print('test.py -i <inputfile> -o <outputfile>')
+	 print('\n')
+         print('##### create_manifest_from_fastq.py Manual#####')
+         print("\tPlease use absolute path for 'input directory' and 'output file'")
+ 	 print('\tUsage: ./create_manifest_from_fastq.py -i <input directory> -o <output file>')
+	 print('\tExample: ./create_manifest_from_fastq.py -i /absolute_path_to_inputdir -o /absolute_path_to_outputdir/manifest.txt')
          sys.exit()
       elif opt in ("-i", "--ifile"):
          inputfile = arg
