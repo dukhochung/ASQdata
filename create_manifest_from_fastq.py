@@ -4,7 +4,8 @@
 which is needed for qiime2 data import step (.qza file)"""
 
 __author__	= "Dukho Chung"
-
+__maintainer__	= "Dukho Chung"
+__email__	= "dukhochung89@gmail.com"
 
 
 import re
