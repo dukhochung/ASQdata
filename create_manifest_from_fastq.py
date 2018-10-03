@@ -91,7 +91,7 @@ def main(argv):
    with open(out_base, "r+") as f:
         old = f.read() # read everything in the file
         f.seek(0) # rewind
-        f.write("sample_id,absolute_filepath,direction\n" + old) # write the new line before
+        f.write("sample-id,absolute-filepath,direction\n" + old) # write the new line before
 
         # remove temp files
         cmd_rm_tempfile="rm *tempfile_12312312123.txt"
