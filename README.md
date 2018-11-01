@@ -7,7 +7,8 @@ Scripts in this repository include the following:
 
 
 # create_manifest_from_fastq.py USAGE
-The script is an automation of “Fastq manifest” formats section from [Importing data tutorial](https://docs.qiime2.org/2018.8/tutorials/importing/)
+The script is an automation of “Fastq manifest” formats section from QIIME2(version 2018.6)'s [Importing data tutorial](https://docs.qiime2.org/2018.8/tutorials/importing/)
+
 create_manifest_from_fastq.py: creates a manifest file from raw illumina fastq files (paired or single end),
 which is needed for qiime2 data import step (.qza file)
 
