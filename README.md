@@ -78,4 +78,5 @@ match_otu_ids.py matches the ids between OTU table (txt format) and classificati
 <br>
 <br>
   
-  note: To change the format of your OTU table from '.biom' to a text file, please use [Convert BIOM formats (Galaxy Version 2.1.5.0)](https://share-galaxy.ibers.aber.ac.uk/?tool_id=toolshed.g2.bx.psu.edu%2Frepos%2Fiuc%2Fbiom_convert%2Fbiom_convert%2F2.1.5.0&version=2.1.5.0&__identifer=bdshirne0e)
+  note 
+    To change the format of your OTU table from '.biom' to a text file: [Convert BIOM formats (Galaxy Version 2.1.5.0)](https://share-galaxy.ibers.aber.ac.uk/?tool_id=toolshed.g2.bx.psu.edu%2Frepos%2Fiuc%2Fbiom_convert%2Fbiom_convert%2F2.1.5.0&version=2.1.5.0&__identifer=bdshirne0e)
