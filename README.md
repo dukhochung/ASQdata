@@ -44,9 +44,9 @@ match_otu_ids.py matches the ids between OTU table (txt format) and classificati
 
 
  
-  1. match_otu_ids.py takes two input files:
-    the classification file output from CowPi’s ‘Extract names’ step <br>
-    (file is automatically hidden after running) that contains extracted sequence ids 
+  1. match_otu_ids.py takes two input files: <br>
+      - the classification file output from CowPi’s ‘Extract names’ step <br>
+      - (file is automatically hidden after running) that contains extracted sequence ids 
     the input feature table file. 
 
   2. download match_otu_ids.py to desired path
