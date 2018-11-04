@@ -18,7 +18,7 @@ which is needed for qiime2 data import step (.qza file)
       `chmod +x create_manifest_from_fastq.py`
   3. Execute file with specified input directory (the one with all fastq files) and output file (manifest file with desired name) <br>
     **Use absolute path for 'input directory' and 'output file'")**
-
+    
     Usage: 
       ./create_manifest_from_fastq.py -i <input directory> -o <output file>
 
@@ -44,7 +44,8 @@ cowpi_match_ids.py takes two input files:
   (file is automatically hidden after running) that contains extracted sequence ids 
 - the input feature table file. 
 
-The user will type in the script interactively following the pop-up instructions in the terminal, once executed.
+    Usage:
+      The user will type in the script interactively following the pop-up instructions in the terminal, once executed.
 
 
 
