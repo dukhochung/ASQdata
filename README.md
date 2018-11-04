@@ -30,14 +30,14 @@ which is needed for qiime2 data import step (.qza file)
 
 # cowpi_match_ids.py USAGE
 Script was written as a workaround for the error following the 'R step':
-![Error message](
-        test/cowpi_error_message.JPG
+![alt text](
+        test/cowpi_error_message.JPG?raw=true "Title"
       )
 
   with the message stating something close to:
-  Fatal error: Exit code 1 ()
-  Error in `$<-.data.frame`(`*tmp*`, "NEW", value = c(130L, 55L, 154L, 95L,  : 
-    replacement has 1003 rows, data has 1040
+    Fatal error: Exit code 1 ()
+    Error in `$<-.data.frame`(`*tmp*`, "NEW", value = c(130L, 55L, 154L, 95L,  : 
+      replacement has 1003 rows, data has 1040
 
 cowpi_match_ids.py matches the ids between OTU table (txt format) and classification output of Cowpi galaxy workflow 'R step'.
 cowpi_match_ids.py takes two input files: 
