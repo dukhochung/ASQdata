@@ -4,6 +4,8 @@ Scripts in this repository include the following:
   - batch scripts for qiime2 workflow
   - create_manifest_from_fastq.py : creates manifest file from the raw illumina fastq files (paired or single end), 
   which is necessary for qiime2 data import step (.qza file)
+  - match_otu_ids.py : matches the ids between OTU table (txt format) and classification output of Cowpi galaxy workflow 'R step',
+  as a workaround for error following the 'R step'.
 
 <br>
 <br>
