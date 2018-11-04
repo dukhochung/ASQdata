@@ -47,7 +47,7 @@ cowpi_match_ids.py takes two input files:
     **Use absolute path for 'input directory' and 'output file'")**
     
     Usage:
-      The user will type in the script interactively following the pop-up instructions in the terminal, once executed.
+      <The user will type in the script interactively following the pop-up instructions in the terminal, once executed.>sdf
 
     sdf:
       dsf 
