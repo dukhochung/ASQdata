@@ -47,6 +47,8 @@ cowpi_match_ids.py takes two input files:
     Usage:
       The user will type in the script interactively following the pop-up instructions in the terminal, once executed.
 
-
+    sdf:
+      dsf 
+      
 
 To change the format of your OTU table from '.biom' to a text file, please use [Convert BIOM formats (Galaxy Version 2.1.5.0)](https://share-galaxy.ibers.aber.ac.uk/?tool_id=toolshed.g2.bx.psu.edu%2Frepos%2Fiuc%2Fbiom_convert%2Fbiom_convert%2F2.1.5.0&version=2.1.5.0&__identifer=bdshirne0e)
