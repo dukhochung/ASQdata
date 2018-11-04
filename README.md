@@ -5,7 +5,8 @@ Scripts in this repository include the following:
   - create_manifest_from_fastq.py : creates manifest file from the raw illumina fastq files (paired or single end), 
   which is necessary for qiime2 data import step (.qza file)
 
-
+<br>
+<br>
 
 # create_manifest_from_fastq.py USAGE
 The script is an automation of “Fastq manifest” formats section from QIIME2(version 2018.6)'s [Importing data tutorial](https://docs.qiime2.org/2018.8/tutorials/importing/)
@@ -25,7 +26,8 @@ which is needed for qiime2 data import step (.qza file)
     Example: 
       ./create_manifest_from_fastq.py -i /absolute_path_to_inputdir -o /absolute_path_to_outputdir/manifest.txt
 
-
+<br>
+<br>
 
 
 # match_otu_ids.py USAGE
@@ -59,7 +61,7 @@ match_otu_ids.py matches the ids between OTU table (txt format) and classificati
       The user will type in the script interactively following the pop-up instructions in the terminal, once executed.
 
     Example: 
-      ![example_match_ids](https://user-images.githubusercontent.com/40154523/47962862-c622e480-e06e-11e8-8b94-be8e7329da6e.JPG)
+![example_match_ids](https://user-images.githubusercontent.com/40154523/47962862-c622e480-e06e-11e8-8b94-be8e7329da6e.JPG)
 
       
        
