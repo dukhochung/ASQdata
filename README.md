@@ -30,9 +30,7 @@ which is needed for qiime2 data import step (.qza file)
 
 # cowpi_match_ids.py USAGE
 Script was written as a workaround for the error following the 'R step':
-![alt text](
-        test/cowpi_error_message.JPG?raw=true "Title"
-      )
+![alt text](C:/Users/Dukho/Desktop/cowpi_error_message.JPG)
 
   with the message stating something close to:
     Fatal error: Exit code 1 ()
