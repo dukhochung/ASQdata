@@ -7,6 +7,7 @@ Scripts in this repository include the following:
 
 <br>
 <br>
+<br>
 
 # create_manifest_from_fastq.py USAGE
 The script is an automation of “Fastq manifest” formats section from QIIME2(version 2018.6)'s [Importing data tutorial](https://docs.qiime2.org/2018.8/tutorials/importing/)
@@ -26,9 +27,16 @@ which is needed for qiime2 data import step (.qza file)
     Example: 
       ./create_manifest_from_fastq.py -i /absolute_path_to_inputdir -o /absolute_path_to_outputdir/manifest.txt
 
-<br>
-<br>
+  4. The output file 'manifest.txt' would be used in the Manifest Import step of [QIIME2 Importing data tutorial](https://docs.qiime2.org/2018.8/tutorials/importing/)
+    qiime tools import \
+    --type 'SampleData[PairedEndSequencesWithQuality]' \
+    --input-path manifest.txt \
+    --output-path paired-end-demux.qza \
+    --input-format PairedEndFastqManifestPhred64
 
+<br>
+<br>
+<br>
 
 # match_otu_ids.py USAGE
 Script was written as a workaround for the error following the 'R step':
@@ -63,7 +71,9 @@ match_otu_ids.py matches the ids between OTU table (txt format) and classificati
     Example: 
 ![example_match_ids](https://user-images.githubusercontent.com/40154523/47962862-c622e480-e06e-11e8-8b94-be8e7329da6e.JPG)
 
-      
-       
+  5. The output file 'matched_otu_table.txt' will be created in the user-specified output directory, 
+  which can be used as input OTU_table in the [CowPi galaxy workflow](https://www.cowpi.org/p/tutorial.html) with your sequecne file.
+  
+  
 
   To change the format of your OTU table from '.biom' to a text file, please use [Convert BIOM formats (Galaxy Version 2.1.5.0)](https://share-galaxy.ibers.aber.ac.uk/?tool_id=toolshed.g2.bx.psu.edu%2Frepos%2Fiuc%2Fbiom_convert%2Fbiom_convert%2F2.1.5.0&version=2.1.5.0&__identifer=bdshirne0e)
