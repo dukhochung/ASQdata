@@ -44,6 +44,8 @@ cowpi_match_ids.py takes two input files:
   (file is automatically hidden after running) that contains extracted sequence ids 
 - the input feature table file. 
 
+    **Use absolute path for 'input directory' and 'output file'")**
+    
     Usage:
       The user will type in the script interactively following the pop-up instructions in the terminal, once executed.
 
